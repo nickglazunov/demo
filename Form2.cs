@@ -1,126 +1,172 @@
 using System;
 using System.Data.SqlClient;
 using System.Windows.Forms;
-namespace KursGlazunov
+namespace WindowsFormsApp8
 {
     public partial class Form2 : Form
     {
-        public string connStr = "Server=localhost;Database=Stydent;Integrated Security=True;TrustServerCertificate=True";
-        public Form2()
+        public string connString = "Server=KRN-20-202-C7\\MSSQLSERVER02;Database=Shoes;Integrated Security=True;TrustServerCertificate=True";
+        public Form2(int role, string fio)
         {
             InitializeComponent();
+            if (role == 0)
+            {
+                comboBox1.Hide();
+                comboBox2.Hide();
+                textBox1.Hide();
+                label1.Text = "Пользователь - " + fio;
+                button2.Hide();
+            }
+            else if (role == 3)
+            {
+                comboBox1.Hide();
+                comboBox2.Hide();
+                label1.Text = "Пользователь - " + fio;
+                button2.Hide();
+            }
+            else if (role == 2)
+            {
+                comboBox2.Hide();
+                label1.Text = "Пользователь - " + fio;
+                button2.Hide();
+            }
+            else if (role == 1)
+            {
+                label1.Text = "Пользователь - " + fio;
+            }
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Заходите еще", "До встречи", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Form1 newform = new Form1();
+            newform.Show();
+            this.Hide();
         }
         private void Form2_Load(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(connStr);
+                SqlConnection conn = new SqlConnection(connString);
+                conn.Open();
+                string query = "SELECT * FROM Products";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    UserControl1 usercontrol = new UserControl1();
+                usercontrol.Card(
+                reader["nameproduct"].ToString(),
+                reader["description"].ToString(),
+                reader["producer"].ToString(),
+                reader["provider"].ToString(),
+                reader["sklad"].ToString(),
+                reader["price"].ToString());
+                flowLayoutPanel1.Controls.Add(usercontrol);
+                }
+        }
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            string search = textBox1.Text.Trim();
+            string query = "SELECT * FROM Products";
+            flowLayoutPanel1.Controls.Clear();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query += " WHERE nameproduct LIKE '%" + search + "%'";
+            }
+            SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string query = "SELECT TOP 500 * FROM Students, Disciplines, CompletedTasks, Sessions, Tasks, Teachers";
             SqlCommand cmd = new SqlCommand(query, conn);
             SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 UserControl1 usercontrol = new UserControl1();
                 usercontrol.Card(
-                    reader["fullNameStudent"].ToString(),
-                    reader["nameDiscipline"].ToString(),
-                    reader["fullNameTeacher"].ToString(),
-                    reader["status"].ToString(),
-                    reader["mark"].ToString(),
-                    reader["Opisanie"].ToString()
-                    );
+                reader["nameproduct"].ToString(),
+                reader["description"].ToString(),
+                reader["producer"].ToString(),
+                reader["provider"].ToString(),
+                reader["sklad"].ToString(),
+                reader["price"].ToString());
                 flowLayoutPanel1.Controls.Add(usercontrol);
             }
         }
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void comboBox1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
-            string search = textBox1.Text.Trim();
-            string query = "SELECT TOP 100 * FROM Students, Disciplines, CompletedTasks, Sessions, Tasks, Teachers";
-            flowLayoutPanel1.Controls.Clear();
-            if (!string.IsNullOrEmpty(search))
-            {
-                query += " WHERE nameDiscipline LIKE '%" + search + "%'";
-            }
-            SqlConnection conn = new SqlConnection(connStr);
-            conn.Open();
-            SqlCommand sqlc = new SqlCommand(query, conn);
-            SqlDataReader reader = sqlc.ExecuteReader();
-            while (reader.Read())
-            {
-                UserControl1 usercontrol = new UserControl1();
-                usercontrol.Card(
-                    reader["fullNameStudent"].ToString(),
-                    reader["nameDiscipline"].ToString(),
-                    reader["fullNameTeacher"].ToString(),
-                    reader["status"].ToString(),
-                    reader["mark"].ToString(),
-                    reader["Opisanie"].ToString()
-                    );
-                flowLayoutPanel1.Controls.Add(usercontrol);
-            }
-        }
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string query = "SELECT TOP 100 * FROM Students, Disciplines, CompletedTasks, Sessions, Tasks, Teachers";
+            string query = "SELECT * FROM Products";
             if (comboBox1.SelectedIndex == 0)
             {
-                query += " ORDER BY mark ASC";
+                query += " WHERE category = '1'";
             }
             else if (comboBox1.SelectedIndex == 1)
             {
-                query += " ORDER BY mark DESC";
+                query += " WHERE category = '2'";
             }
-            flowLayoutPanel1 .Controls.Clear();
-            SqlConnection conn123 = new SqlConnection(connStr);
-            conn123.Open();
-            SqlCommand sql1 = new SqlCommand(query, conn123);
-            SqlDataReader reader = sql1.ExecuteReader();
+            flowLayoutPanel1.Controls.Clear();
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(query, conn);
+            SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 UserControl1 usercontrol = new UserControl1();
                 usercontrol.Card(
-                    reader["fullNameStudent"].ToString(),
-                    reader["nameDiscipline"].ToString(),
-                    reader["fullNameTeacher"].ToString(),
-                    reader["status"].ToString(),
-                    reader["mark"].ToString(),
-                    reader["Opisanie"].ToString()
-                    );
+                reader["nameproduct"].ToString(),
+                reader["description"].ToString(),
+                reader["producer"].ToString(),
+                reader["provider"].ToString(),
+                reader["sklad"].ToString(),
+                reader["price"].ToString());
                 flowLayoutPanel1.Controls.Add(usercontrol);
             }
         }
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string query = "SELECT TOP 100 * FROM Students, Disciplines, CompletedTasks, Sessions, Tasks, Teachers";
+            string query = "SELECT * FROM Products";
             if (comboBox2.SelectedIndex == 0)
             {
-                query += " WHERE nameSession = 'Летняя сессия 2025'";
+                query += " WHERE producer = '1'";
             }
             else if (comboBox2.SelectedIndex == 1)
             {
-                query += " WHERE nameSession = 'Зимняя сессия 2025'";
+                query += " WHERE producer = '2'";
             }
             else if (comboBox2.SelectedIndex == 2)
             {
-                query += " WHERE nameSession = 'Зимняя сессия 2024'";
+                query += " WHERE producer = '3'";
+            }
+            else if (comboBox2.SelectedIndex == 3)
+            {
+                query += " WHERE producer = '4'";
+            }
+            else if (comboBox2.SelectedIndex == 4)
+            {
+                query += " WHERE producer = '5'";
+            }
+            else if (comboBox2.SelectedIndex == 5)
+            {
+                query += " WHERE producer = '6'";
             }
             flowLayoutPanel1.Controls.Clear();
-            SqlConnection conn123 = new SqlConnection(connStr);
-            conn123.Open();
-            SqlCommand sql1 = new SqlCommand(query, conn123);
-            SqlDataReader reader = sql1.ExecuteReader();
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            SqlCommand cmd = new SqlCommand(query, conn);
+            SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 UserControl1 usercontrol = new UserControl1();
                 usercontrol.Card(
-                    reader["fullNameStudent"].ToString(),
-                    reader["nameDiscipline"].ToString(),
-                    reader["fullNameTeacher"].ToString(),
-                    reader["status"].ToString(),
-                    reader["mark"].ToString(),
-                    reader["Opisanie"].ToString()
-                    );
+                reader["nameproduct"].ToString(),
+                reader["description"].ToString(),
+                reader["producer"].ToString(),
+                reader["provider"].ToString(),
+                reader["sklad"].ToString(),
+                reader["price"].ToString());
                 flowLayoutPanel1.Controls.Add(usercontrol);
             }
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Form3 newform = new Form3();
+            newform.Show();
+            this.Hide();
         }
     }
 }
